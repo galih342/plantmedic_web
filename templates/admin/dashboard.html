@@ -1,0 +1,290 @@
+  {% extends "base.html" %}
+
+  {% block title %}Admin Dashboard — PlantMedic{% endblock %}
+
+  {% block head %}
+  <!-- Tailwind Play CDN (for rapid demo) -->
+  <script> tailwind.config = {darkMode: 'class',}</script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+  <style>
+    /* small utilities not in play CDN */
+    .sidebar-transition { transition: transform .2s ease; }
+    .glass { background: rgba(255,255,255,0.6); backdrop-filter: blur(6px); }
+    @media (min-width: 1024px) { .mobile-hide-lg { display: none; } }
+
+    /* transisi warna seluruh website */
+    html {
+      transition: transform 0.35s ease, color 0.25s ease;
+    }
+
+    body {
+      transition: background-color 0.35s, color 0.25s;
+      background-color: #fff;
+      color: #111;
+    }
+    html.dark body {
+      background-color: #111;
+      color: #f0f0f0;
+    }
+
+    /* animasi ikon */
+    #iconTheme svg {
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .fade-out { opacity: 0; transform: rotate(180deg); }  
+    .fade-in  { opacity: 1; transform: rotate(0deg); }
+
+    /* putaran keluar */
+    .icon-rotate-out {
+      transform: rotate(180deg);
+      opacity: 0;
+    }
+
+    /* putaran masuk */
+    .icon-rotate-in {
+      transform: rotate(0deg);
+      opacity: 1;
+    }
+
+    /* Scrollbar transparan & halus */
+    .scroll-transparent {
+      scrollbar-width: thin;              /* Firefox */
+      scrollbar-color: transparent transparent;
+    }
+
+    .scroll-transparent::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .scroll-transparent::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .scroll-transparent::-webkit-scrollbar-thumb {
+      background-color: rgba(100, 116, 139, 0.35); /* slate-500 */
+      border-radius: 9999px;
+    }
+
+    .scroll-transparent::-webkit-scrollbar-thumb:hover {
+      background-color: rgba(100, 116, 139, 0.6);
+    }
+
+    /* Dark mode */
+    .dark .scroll-transparent::-webkit-scrollbar-thumb {
+      background-color: rgba(148, 163, 184, 0.35);
+    }
+
+    .dark .scroll-transparent::-webkit-scrollbar-thumb:hover {
+      background-color: rgba(148, 163, 184, 0.6);
+    }
+
+  </style>
+{% endblock %}
+
+  {% block content %}
+  <div class="min-h-screen flex">
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="w-72 bg-white dark:bg-slate-900 bg-white border-r hidden lg:block sidebar-transition borderw-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 hidden lg:block sidebar-transition">
+      <div class="p-6">
+        <a href="#" class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white font-bold">PM</div>
+          <div>
+            <h4 class="font-semibold">PlantMedic</h4>
+            <p class="text-xs text-slate-500">Admin Panel</p>
+          </div>
+        </a>
+      </div>
+      <nav class="px-4 pb-6">
+        <ul class="space-y-1">
+          <li>
+            <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18M3 18h18"></path></svg>
+              <span class="font-medium">Dashboard</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1">
+      <!-- topbar -->
+      <header class="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border-b dark:border-slate-700">
+        <div class="flex items-center gap-3">
+          <h1 class="text-lg font-semibold">Dashboard</h1>
+          <div class="ml-4 hidden sm:block">
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button id="btnTheme" class="p-2 rounded-full flex items-center justify-center bg-slate-200 dark:bg-slate-700" title="Toggle theme">
+            <span class="relative inline-flex items-center justify-center w-6 h-6">
+              <!-- Sun Icon -->
+              <span id="iconSun" class="material-symbols-outlined absolute text-yellow-500">light_mode</span>
+
+              <!-- Moon Icon -->
+              <span id="iconMoon" class="material-symbols-outlined absolute text-slate-300 opacity-0">dark_mode</span>
+            </span>
+          </button>
+        
+
+          <div class="relative">
+            <button id="profileBtn" class="flex items-center gap-2 p-2 rounded-md hover:bg-slate-100">
+            <!-- Icon Admin dari Google Material Symbols -->
+            <span class="material-symbols-outlined text-2xl">
+              account_circle
+            </span>
+            <span class="hidden sm:inline">Admin</span>
+          </button>
+            <div id="profileMenu" class="hidden absolute right-0 mt-2 w-44 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-md shadow-md py-2">
+              <a href="{{ url_for('admin_logout') }}" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">Logout</a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="p-4 lg:p-6">
+        <!-- cards -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-3 lg:gap-4">
+          <div class="bg-white dark:bg-slate-900
+            p-3 lg:p-4
+            rounded-lg shadow-sm
+            border border-slate-200 dark:border-slate-800">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-sm text-slate-500">Total Predictions</p>
+                <div id="totalPredictions" class="text-2xl font-semibold text-slate-800 dark:text-white">0</div>
+              </div>
+              <div class="p-3 bg-emerald-100 dark:bg-emerald-800/40 rounded-md transition-colors duration-300">
+                <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h4l3 10 4-18 3 10h4"></path></svg>
+              </div>
+            </div>
+            <p class="mt-3 text-xs text-slate-400 dark:text-slate-500">Updated 2 hours ago</p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900
+            p-3 lg:p-4
+            rounded-lg shadow-sm
+            border border-slate-200 dark:border-slate-800">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-sm text-slate-500">User Not Active</p>
+                <h3 id="userNotActiveCount" class="text-2xl font-semibold text-slate-800 dark:text-white">0</h3>
+              </div>
+              <div class="p-3 bg-emerald-100 dark:bg-emerald-800/40 rounded-md transition-colors duration-300">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg>
+              </div>
+            </div>
+            <p class="mt-3 text-xs text-slate-400 dark:text-slate-500">Last 7 Weeks</p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900
+            p-3 lg:p-4
+            rounded-lg shadow-sm
+            border border-slate-200 dark:border-slate-800">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-sm text-slate-500">Active Users</p>
+                <h3 id="userActiveCount" class="text-2xl font-semibold text-slate-800 dark:text-white">0</h3>
+              </div>
+              <div class="p-3 bg-emerald-100 dark:bg-emerald-800/40 rounded-md transition-colors duration-300">
+                <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M19 3v4M5 21h14a2 2 0 0 0 2-2V7H3v12a2 2 0 0 0 2 2z"></path></svg>
+              </div>
+            </div>
+            <p class="mt-3 text-xs text-slate-400 dark:text-slate-500">Last 24 hours</p>
+          </div>
+        </section>
+
+        <!-- charts + list -->
+       <section class="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-6">
+        <!-- Card 1 -->
+        <div class="lg:col-span-3 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 transition-colors duration-300">
+                    
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="font-semibold text-slate-700 dark:text-slate-100">
+              Website visit
+            </h4>
+            <div class="text-xs text-slate-400 dark:text-slate-500">Last 3 days</div>
+          </div>
+
+          <div class="relative w-full h-72">
+            <canvas id="visitChart" class="absolute inset-0 w-full h-full"></canvas>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class=" lg:col-span-1 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 transition-colors duration-300 scroll-transparent">
+
+          <h4 id="recentPredictions" class="font-semibold text-slate-700 dark:text-slate-100 mb-2 ">
+            Recent Predictions
+          </h4>
+
+          <ul id="recentList" class="mt-3 max-h-80 space-y-3 overflow-y-auto scroll-transparent">
+            <!-- filled by JS -->
+          </ul>
+        </div>
+      </section>
+
+        <!-- USERS TABLE -->
+        <section id="users"
+          class="mt-8 bg-white dark:bg-slate-900 p-4 rounded-lg shadow-sm transition-colors duration-300">
+
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="font-semibold text-slate-800 dark:text-slate-200">
+              Users
+            </h4>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm bg-white dark:bg-slate-800 rounded-lg overflow-hidden">
+              <thead class="bg-slate-50 dark:bg-slate-700/40 text-slate-600 dark:text-slate-300">
+                <tr>
+                  <th class="p-2 text-left">#</th>
+                  <th class="p-2 text-left">Name</th>
+                  <th class="p-2 text-left">Email</th>
+                  <th class="p-2 text-left">Role</th>
+                  <th class="p-2 text-left">Status</th>
+                  <th class="p-2 text-center">Aksi</th>
+                </tr>
+              </thead>
+
+              <tbody id="usersBody"
+                class="divide-y divide-slate-200 dark:divide-slate-700">
+                <!-- diisi JS -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+
+      </main>
+
+      <footer class="p-4 text-center text-xs text-slate-400 dark:text-slate-500">© PlantMedic — Admin Dashboard</footer>
+    </div>
+  </div>
+
+  <!-- Modal template -->
+  <div id="modal" class="fixed inset-0 hidden items-center justify-center bg-black/40 dark:bg-black/60">
+    <div class="bg-white dark:bg-slate-900 rounded-lg w-full max-w-2xl overflow-hidden">
+      <div class="p-4 flex items-center justify-between border-b dark:border-slate-700">
+        <h3 class="font-semibold">Detail Prediksi</h3>
+        <button id="modalClose" class="text-slate-500 dark:text-slate-300">Close</button>
+      </div>
+      <div class="p-4" id="modalContent"></div>
+    </div>
+  </div>
+
+<script src="{{ url_for('static', filename='js/dashboard_admin.js') }}"></script>
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+
+  {% endblock %}
+
+
+
+
+

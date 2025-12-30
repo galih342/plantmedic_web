@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Plant Medic{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- GLOBAL STYLE -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.animate-slide-in {
+  animation: slide-in 0.4s ease-out;
+}
+
+@keyframes check {
+  0% {
+    stroke-dasharray: 50;
+    stroke-dashoffset: 50;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+.animate-check {
+  stroke-dasharray: 50;
+  animation: check 0.5s ease-out forwards;
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s ease-out;
+}
+
+</style>
+
+  {% block head %}{% endblock %}
+
+</head>
+
+
+<body class="{% block body_class %}{% endblock %}">
+
+
+  {% include "components/flash_popup.html" %}
+
+  {% block content %}{% endblock %}
+ 
+  {% block scripts %}{% endblock %}
+
+  <script>
+    function closePopup(id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    }
+  </script>
+
+
+
+
+</body>
+</html>

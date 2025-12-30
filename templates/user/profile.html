@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil User</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen">
+
+    <!-- Container -->
+    <div class="max-w-3xl mx-auto px-6 py-12">
+
+        <!-- Header -->
+        <h1 class="text-3xl font-bold mb-8 text-center">Profil Pengguna</h1>
+
+        <!-- Profile Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
+
+            <!-- Top Section -->
+            <div class="flex items-center gap-6">
+                <!-- Avatar -->
+                <img 
+                    src="https://ui-avatars.com/api/?name=User&background=0D8ABC&color=fff&size=128" 
+                    alt="Avatar"
+                    class="w-28 h-28 rounded-full shadow-md"
+                />
+
+                <!-- User Basic Info -->
+                <div>
+                    <h2 class="text-2xl font-semibold">Yuda Alex</h2>
+                    <p class="text-gray-500 dark:text-gray-400">Member sejak 2024</p>
+                </div>
+            </div>
+
+            <hr class="my-8 border-gray-300 dark:border-gray-700" />
+
+            <!-- Detail Info -->
+            <div class="space-y-4">
+
+                <div class="flex justify-between p-3 bg-gray-50 dark:bg-gray-700/40 rounded-lg">
+                    <span class="font-medium">Email</span>
+                    <span>user@example.com</span>
+                </div>
+
+                <div class="flex justify-between p-3 bg-gray-50 dark:bg-gray-700/40 rounded-lg">
+                    <span class="font-medium">Username</span>
+                    <span>yudacode</span>
+                </div>
+
+                <div class="flex justify-between p-3 bg-gray-50 dark:bg-gray-700/40 rounded-lg">
+                    <span class="font-medium">Role</span>
+                    <span>User</span>
+                </div>
+
+                <div class="flex justify-between p-3 bg-gray-50 dark:bg-gray-700/40 rounded-lg">
+                    <span class="font-medium">Status</span>
+                    <span class="text-green-500 font-semibold">Aktif</span>
+                </div>
+
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-10 flex justify-end gap-4">
+                <a href="/user/profile/edit"
+                   class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium">
+                   Edit Profil
+                </a>
+
+                <a href="/logout"
+                   class="px-5 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium">
+                   Logout
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+</body>
+</html>
