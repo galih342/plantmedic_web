@@ -31,10 +31,20 @@ def allowed_file(filename):
 def create_app():
     app = Flask(__name__)
 
-    app.config["SECRET_KEY"] = "plantmedic-secret-key"
-    # KUNCI UTAMA:
-    # Mengambil database dari Railway, kalau gak ada (di laptop) pake localhost.
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "mysql+pymysql://root:@localhost/plantmedic_db")
+    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "plantmedic-secret-key")
+
+    # --- 👇 BAGIAN PERBAIKAN PENTING (AUTO-FIX URL) 👇 ---
+    # 1. Ambil dulu URL dari Railway
+    db_url = os.getenv("DATABASE_URL", "mysql+pymysql://root:@localhost/plantmedic_db")
+
+    # 2. Kalau Railway ngasih format 'mysql://' (yang bikin crash), kita ganti paksa
+    if db_url and db_url.startswith("mysql://"):
+        db_url = db_url.replace("mysql://", "mysql+pymysql://", 1)
+
+    # 3. Masukkan URL yang sudah 'sehat' ke config
+    app.config["SQLALCHEMY_DATABASE_URI"] = db_url
+    # -----------------------------------------------------
+
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "super-secret-key")
     app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -42,8 +52,16 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
     
-    # with app.app_context():
-    #     db.create_all()
+    # --- 👇 AUTO CREATE TABLE (DENGAN PENGAMAN) 👇 ---
+    # Kita nyalakan lagi biar tabelnya jadi.
+    # Tapi pake try-except biar kalau database error, web TETAP NYALA (gak crash).
+    with app.app_context():
+        try:
+            db.create_all()
+            print("✅ SUKSES: Tabel database aman.")
+        except Exception as e:
+            print(f"⚠️ WARNING: Gagal konek database saat start. Error: {e}")
+            # Aplikasi lanjut jalan walau database error
 
     app.register_blueprint(admin_bp, url_prefix="/admin")
     app.register_blueprint(auth_bp)
