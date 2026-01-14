@@ -315,19 +315,19 @@
           <div id="accountBtn" class="flex items-center gap-3 p-4 cursor-pointer hover:bg-gray-100 transition">
    
             <!-- AVATAR -->
-<div id="accountBtnAvatar" class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center text-lg font-semibold overflow-hidden relative">
-    
-    {% if current_user.photo_url %}
-        <img id="accountBtnImg" 
-             src="{{ url_for('static', filename='uploads/avatar/' + current_user.photo_url) }}" 
-             class="w-full h-full object-cover absolute inset-0" 
-             alt="Avatar">
-    {% else %}
-        <span id="accountBtnInitial">{{ current_user.username[0]|upper }}</span>
-        <img id="accountBtnImg" class="hidden w-full h-full object-cover absolute inset-0" alt="Avatar">
-    {% endif %}
+            <div
+              id="accountBtnAvatar" class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center text-lg font-semibold overflow-hidden">
 
-</div>
+              <!-- INITIAL -->
+              <span id="accountBtnInitial"> {{ current_user.username[0]|upper }} </span>
+
+              <!-- IMAGE -->
+              <img id="accountBtnImg" class="hidden w-full h-full object-cover rounded-full" alt="Avatar">
+            </div>
+
+            <!-- USERNAME -->
+            <p id="accountBtnUsername" class="font-semibold text-gray-800"> {{ current_user.username }} </p>
+          </div>
 
 
             <!-- DROP UP -->
@@ -336,9 +336,7 @@
               <!-- PROFILE BUTTON -->
               <button id="profileBtn" class="w-full flex items-center gap-3 px-4 py-3 border-b hover:bg-gray-50 transition text-left">
 
-<img id="accountMenuAvatar" 
-     src="{{ url_for('static', filename='uploads/avatar/' + current_user.photo_url) if current_user.photo_url else url_for('static', filename='img/default-avatar.png') }}" 
-     class="w-10 h-10 rounded-full border object-cover bg-gray-100">
+              <img id="accountMenuAvatar" src="{{ current_user.photo_url or '/static/img/default-avatar.png' }}" class="w-10 h-10 rounded-full border object-cover">
 
             <div class="min-w-0">
               <p id="accountMenuUsername" class="font-semibold truncate"> {{ current_user.username }}</p>
@@ -567,19 +565,22 @@
 
                     <div class="flex items-center gap-3">
                       <!-- AVATAR -->
-<div id="welcomeAvatar" class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold overflow-hidden relative">
-    
-    {% if current_user.photo_url %}
-        <img id="welcomeAvatarImg" 
-             src="{{ url_for('static', filename='uploads/avatar/' + current_user.photo_url) }}" 
-             class="w-full h-full object-cover absolute inset-0" 
-             alt="Avatar">
-    {% else %}
-        <span id="welcomeInitial">{{ current_user.username[0]|upper }}</span>
-        <img id="welcomeAvatarImg" class="hidden w-full h-full object-cover absolute inset-0" alt="Avatar">
-    {% endif %}
+                      <div
+                        id="welcomeAvatar"
+                        class="w-10 h-10 bg-primary text-white rounded-full
+                              flex items-center justify-center font-bold overflow-hidden">
 
-</div>
+                        <!-- INITIAL -->
+                        <span id="welcomeInitial">
+                          {{ current_user.username[0]|upper }}
+                        </span>
+
+                        <!-- PHOTO -->
+                        <img
+                          id="welcomeAvatarImg"
+                          class="hidden w-full h-full object-cover"
+                          alt="Avatar">
+                      </div>
 
                       <!-- TEXT -->
                       <div class="text-sm leading-tight">
