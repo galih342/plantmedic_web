@@ -10,3 +10,4 @@ numpy
 tensorflow-cpu
 cryptography
 opencv-python-headless
+requests
