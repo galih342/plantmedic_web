@@ -9,3 +9,4 @@ Flask-JWT-Extended
 numpy
 tensorflow-cpu
 cryptography
+opencv-python-headless
