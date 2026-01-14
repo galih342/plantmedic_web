@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>History Predict</title>
+</head>
+<body>
+    <h1>History Predict</h1>
+    <table>
+        <thead><tr><th>ID</th><th>File</th><th>Label</th><th>Confidence</th><th>Date</th><th>Action</th></tr></thead>
+    <tbody>
+        {% for r in rows %}
+        <tr id="row-{{ r.id }}">
+        <td>{{ r.id }}</td>
+        <td>{{ r.filename }}</td>
+        <td>{{ r.label }}</td>
+        <td>{{ (r.confidence*100)|round(1) }}%</td>
+        <td>{{ r.created_at }}</td>
+        <td><button class="del-btn" data-id="{{ r.id }}">Hapus</button></td>
+        </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+<script>
+document.querySelectorAll('.del-btn').forEach(b=>{
+    b.addEventListener('click', async (e)=>{
+    const id = e.target.dataset.id;
+    const res = await fetch(`/admin/riwayat/delete/${id}`, {method:'POST'});
+    const j = await res.json();
+    if(j.success){ document.getElementById(`row-${id}`).remove(); }
+    else alert('Gagal');
+    })
+})
+    </script>
+</body>
+</html>

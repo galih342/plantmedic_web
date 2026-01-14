@@ -1,0 +1,697 @@
+  {% extends "base.html" %}
+
+  {% block title %}User Dashboard{% endblock %}
+
+  {% block body_class %}dashboard-page{% endblock %}
+
+  {% block head %}
+ 
+    
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#16a34a',
+              accent: '#047857'
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+
+      html,body{height: auto;
+                overflow-y: auto;
+                font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial}
+      
+
+      @keyframes dropUp {
+        0% { opacity: 0; transform: translateY(10px); }
+        100% { opacity: 1; transform: translateY(0); }
+      }
+
+      .animate-slide-up {
+        animation: dropUp 0.25s ease-out;
+      }
+
+      #accountMenu {
+      transition: all 0.25s ease;
+
+      }
+
+      #accountMenu.show {
+          opacity: 1 !important;
+          transform: scale(1) translateY(0) !important;
+      }
+
+      /* ===========================
+        DROPZONE STYLES
+        =========================== */
+
+       /* MODE NORMAL / IDLE */
+      .dropzone.idle {
+        border: 2px dashed #d1d5db;
+        background-color: #fafafa;
+      }
+
+      .dropzone.idle:hover {
+        border-color: #16a34a;
+        background: #f9fafb;
+      }
+
+      /* MODE PREVIEW */
+      .dropzone.dropzone-preview {
+        border: none !important;
+        background: transparent !important;
+      }
+
+      /* MODE HISTORY */
+      .dropzone.is-history {
+        border: none !important;
+        background: transparent !important;
+        cursor: default;
+      }
+
+      /* HANYA konten dropzone yang non-interaktif */
+      .dropzone.is-history .dropzone-content {
+        pointer-events: none;
+      }
+
+      #menuBtn {
+        position: relative;
+        z-index: 70;
+      }
+
+      #sidebar {
+        position: fixed;
+        inset: 0 auto 0 0; /* kiri */
+        z-index: 60;
+        pointer-events: auto;
+      }
+
+      @media (max-width: 1023px) {
+        #sidebar {
+          width: 80%;
+          max-width: 320px;
+          background: white;
+          box-shadow: 8px 0 24px rgba(0,0,0,.08);
+        }
+      }
+
+      /* MOBILE ONLY */
+      @media (max-width: 1023px) {
+        #sidebar {
+          pointer-events: auto;
+        }
+
+        #sidebar.pointer-events-auto {
+          pointer-events: auto;
+        }
+      }
+
+
+      #overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 40;
+        pointer-events: none;
+      }
+
+      #overlay.pointer-events-auto {
+        pointer-events: auto;
+      }
+
+
+      #closeSidebarBtn {
+        position: relative;
+        z-index: 60; /* 🔥 di atas segalanya */
+      }
+
+      /* Saat sidebar mobile aktif */
+      .body-sidebar-open .main-content {
+        pointer-events: none;
+        user-select: none;
+      }
+
+            /* Placeholder transition */
+      #placeholderContent {
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+      }
+
+      #placeholderContent.hidden {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+      }
+
+      /* Preview card */
+      #previewCard {
+        transition: opacity 0.3s ease;
+      }
+
+      #previewCard.hidden {
+        display: none !important;
+      }
+
+      /* Close button hover effect */
+      #closePreview:hover {
+        transform: scale(1.1);
+      }
+
+      .scrollbar-thin::-webkit-scrollbar {
+        width: 6px;
+      }
+      .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: #d1d5db;
+        border-radius: 9999px;
+      } 
+
+      .typing::after {
+        content: "▍";
+        animation: blink 1s infinite;
+        margin-left: 2px;
+        color: #10b981; /* emerald */
+      }
+
+      @keyframes blink {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0; }
+      }
+
+      /* ===========================
+        AI RESULT STYLES
+        =========================== */
+
+      #aiResult {
+        background: linear-gradient(to bottom, #ffffff, #f9fafb);
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        max-width: 100%;
+      }
+
+      #aiResult p {
+        margin-bottom: 1rem;
+      }
+
+      #aiResult strong {
+        font-weight: 600;
+        color: #16a34a;
+      }
+
+      /* Responsive text */
+      @media (max-width: 640px) {
+        #aiResult {
+          font-size: 14px;
+          padding: 1rem 1.25rem;
+        }
+      }
+
+      /* MOBILE: hide close-image button saat sidebar aktif */
+      @media (max-width: 1023px) {
+        .body-sidebar-open #closePreview {
+          opacity: 0;
+          visibility: hidden;
+          pointer-events: none;
+        }
+      }
+
+
+      /* Markdown-like styling */
+      #aiResult h1, #aiResult h2, #aiResult h3 {
+        font-weight: 700;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+        color: #1f2937;
+      }
+
+      #aiResult ul, #aiResult ol {
+        margin-left: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      #aiResult li {
+        margin-bottom: 0.5rem;
+      }
+
+      /* ACCOUNT / ARCHIVE HARUS DI ATAS SIDEBAR */
+      #accountOverlay,
+      #profileOverlay,
+      #globalOverlay {
+        z-index: 80;
+      }
+
+      #accountModal,
+      #archiveModal,
+      #profileModal,
+      #deleteAccountModal {
+        z-index: 90;
+      }
+
+      
+      
+    </style>
+
+    {% endblock %}
+
+    {% block content %}
+
+<!-- ================= SIDEBAR ================= -->
+<aside id="sidebar" class="fixed top-0 left-0 z-40 h-full w-64 bg-white shadow-md flex flex-col transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:transition-none">
+
+         <!-- HEADER -->
+          <div class="p-5 border-b shrink-0 flex items-center justify-between relative">
+
+            <h2 class="text-lg font-bold">Plant Medic</h2>
+
+            <!-- CLOSE SIDEBAR (MOBILE ONLY) -->
+            <button id="closeSidebarBtn" class="lg:hidden w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition">
+
+            <span class="material-symbols-outlined text-xl">arrow_back</span>
+
+            </button>
+
+          </div>
+
+
+          <!-- ================= MENU + HISTORY ================= -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+
+          <!-- 🔹 NEW CHAT (SELALU TERLIHAT) -->
+          <div class="px-1 py-2 shrink-0">
+            <button
+              id="newChatBtn"
+              class="w-full flex items-center gap-2
+                    px-4 py-2.5 rounded-xl
+                    text-sm font-medium
+                    hover:bg-slate-100 transition">
+              <span class="material-symbols-outlined text-base">
+                comment
+              </span>
+              New Chat
+            </button>
+          </div>
+
+          <!-- 🔹 HISTORY -->
+          <div class="border-t border-slate-300 flex flex-col flex-1 overflow-hidden">
+
+            <div class="px-4 py-2 text-xs text-slate-500 uppercase shrink-0">Your Chat History</div>
+
+            <div id="historyList"class="flex-1 overflow-y-auto px-2 pb-2 space-y-1"></div>
+
+          </div>
+          
+        </div>
+
+        
+            <!-- ACCOUNT -->
+        <div class="relative border-t">
+          <div id="accountBtn" class="flex items-center gap-3 p-4 cursor-pointer hover:bg-gray-100 transition">
+   
+            <!-- AVATAR -->
+            <div
+              id="accountBtnAvatar" class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center text-lg font-semibold overflow-hidden">
+
+              <!-- INITIAL -->
+              <span id="accountBtnInitial"> {{ current_user.username[0]|upper }} </span>
+
+              <!-- IMAGE -->
+              <img id="accountBtnImg" class="hidden w-full h-full object-cover rounded-full" alt="Avatar">
+            </div>
+
+            <!-- USERNAME -->
+            <p id="accountBtnUsername" class="font-semibold text-gray-800"> {{ current_user.username }} </p>
+          </div>
+
+
+            <!-- DROP UP -->
+            <div id="accountMenu" class="hidden absolute bottom-full left-2 right-2 mb-2 bg-white shadow-lg rounded-xl border text-sm overflow-hidden">
+
+              <!-- PROFILE BUTTON -->
+              <button id="profileBtn" class="w-full flex items-center gap-3 px-4 py-3 border-b hover:bg-gray-50 transition text-left">
+
+              <img id="accountMenuAvatar" src="{{ current_user.photo_url or '/static/img/default-avatar.png' }}" class="w-10 h-10 rounded-full border object-cover">
+
+            <div class="min-w-0">
+              <p id="accountMenuUsername" class="font-semibold truncate"> {{ current_user.username }}</p>
+              <p class="text-xs text-gray-500 truncate"> {{ current_user.email }} </p>
+            </div>
+
+              </button>
+
+                <div class="max-h-28 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"> 
+            
+                   <button id="archiveBtn" type="button" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer">
+                      <span class="material-symbols-outlined text-lg">archive</span>
+                      <span class="text-sm font-medium">Chat Archive</span>
+                  </button>
+                  
+                  <button id="accountModalBtn" type="button" class="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-50"> <span class="material-symbols-outlined text-base">account_circle</span> Account </button>
+
+                  <button id="logoutBtn" type="button" class="w-full flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50"> <span class="material-symbols-outlined text-base">logout</span> Logout </button>
+
+                  <script>
+                  function handleLogout(e) {
+                    e.preventDefault();
+                    
+                    // Clear storage
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    
+                    // Redirect
+                    window.location.href = "/logout";
+                  }
+                  </script>
+                </div> 
+              </div>
+            </div>
+          </aside>
+
+          <!-- ================= ARCHIVE MODAL ================= -->
+          <div id="archiveModal" class="fixed inset-0 z-50 hidden pointer-events-none">
+                
+                <!-- ✅ Pastikan pointer-events-auto di container dalam -->
+                <div class="fixed inset-0 flex items-center justify-center pointer-events-none">
+                    <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl p-6 relative flex flex-col max-h-[80vh] pointer-events-auto">
+                        
+                        <!-- HEADER -->
+                        <div class="flex items-center justify-between pb-3 mb-3 border-b">
+                            <h2 class="text-lg font-semibold">Chat Archive</h2>
+                            <button id="closeArchiveModal"  type="button" class="text-2xl text-gray-500 hover:text-gray-700 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">
+                                &times;
+                            </button>
+                        </div>
+
+                        <!-- SEARCH -->
+                        <div class="mb-3">
+                            <input type="text" id="archiveSearch" placeholder="Search archives..." class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                        </div>
+
+                        <!-- LIST -->
+                        <div id="archiveList" class="flex-1 overflow-y-auto space-y-2">
+                            <!-- Konten akan diisi oleh JavaScript -->
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
+
+          <!-- ================= ACCOUNT MODAL ================= -->
+
+          <!-- ACCOUNT OVERLAY -->
+          <div id="accountOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-40"></div>
+
+          <!-- ACCOUNT MODAL -->
+          <div id="accountModal"
+              class="fixed inset-0 z-50 hidden flex items-center justify-center">
+            <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl p-6 space-y-4">
+              <!-- HEADER -->
+              <div class="flex justify-between items-center border-b border-slate-200">
+                <h2 class="text-lg font-semibold">Account</h2>
+                <button id="closeAccountModal"
+                        class="text-gray-400 hover:text-red-500 text-xl">
+                  &times;
+                </button>
+              </div>
+              <!-- INFO -->
+          <div class="space-y-2">
+
+            <!-- USERNAME -->
+            <p class="font-medium text-sm">
+              {{ current_user.username }}
+            </p>
+
+            <!-- EMAIL + DELETE -->
+            <div class="flex items-center justify-between gap-3">
+
+              <p class="text-gray-500 text-xs truncate">
+                {{ current_user.email }}
+              </p>
+
+           <button
+              id="deleteAccountBtn"
+              class="flex items-center gap-1 text-red-600 hover:bg-red-50 px-2 py-1.5 rounded-lg">
+              <span class="material-symbols-outlined text-xs">
+                delete
+              </span>
+              <span class="text-xs font-medium">
+                Delete
+              </span>
+            </button>
+            </div>
+            <hr class="my-3 border-gray-200">
+          </div>
+
+          </div>
+          </div>
+
+          <!-- ================= DELETE ACCOUNT MODAL ================= -->
+          <div id="deleteAccountModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-50 flex items-center justify-center">
+
+            <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl p-6 text-center">
+              <h2 class="text-lg font-semibold mb-2">
+                Are you sure to delete your account?
+              </h2>
+
+              <p class="text-sm text-gray-500">
+                This action cannot be undone.
+              </p>
+
+              <div class="flex justify-center gap-3 mt-6">
+                <button id="cancelDeleteBtn" class="px-4 py-2 border rounded-lg hover:bg-gray-100"> Cancel
+                </button>
+
+                <button id="confirmDeleteBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"> OK
+                </button>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ================= PROFILE MODAL ================= -->
+          <div id="profileModal" class="fixed inset-0 z-50 hidden flex items-center justify-center">
+
+            <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl p-6">
+
+              <!-- AVATAR -->
+              <div class="flex justify-center mb-4 relative">
+
+                <div id="avatarWrapper" class="w-24 h-24 rounded-full bg-primary text-white flex items-center justify-center text-3xl font-semibold overflow-hidden relative">
+
+                  <!-- AVATAR IMAGE -->
+                  <img class="user-avatar hidden w-full h-full object-cover" alt="User Avatar">
+
+                  <!-- INITIAL -->
+                  <span id="avatarInitial" class="user-initial navbar-initial"> {{ current_user.username[0]|upper }}</span>
+
+                  <!-- PREVIEW -->
+                  <img id="avatarPreview" class="hidden w-full h-full object-cover" alt="Preview Avatar">
+                </div>
+
+                <!-- CAMERA BUTTON -->
+                <button id="changeAvatarBtn" type="button" class="absolute bottom-0 right-0 bg-white w-7 h-7 rounded-full shadow flex items-center justify-center hover:bg-gray-100 transition">
+                  <span class="material-symbols-outlined text-[14px] text-gray-700">
+                    photo_camera
+                  </span>
+                </button>
+
+                <!-- FILE INPUT (HIDDEN) -->
+                <input type="file" id="avatarInput" accept="image/*" class="hidden"/>
+              </div>
+
+              <!-- USERNAME -->
+              <div class="space-y-3 mt-8">
+                <div class="border rounded-lg px-4 py-3 focus-within:ring-2 focus-within:ring-primary">
+                  <p class="text-xs text-gray-500 mb-1">Username</p>
+                  <input id="usernameInput" type="text" value="{{ current_user.username }}" class="w-full bg-transparent outline-none font-semibold">
+                </div>
+              </div>
+
+              <!-- ACTION BUTTON -->
+              <div class="mt-6 flex justify-end gap-3">
+                <button id="closeProfileModal" type="button" class="px-4 py-2 rounded-md border hover:bg-gray-100">Close</button>
+
+                <button id="saveProfileBtn" type="button" class="px-4 py-2 rounded-md border hover:bg-gray-100">Save</button>
+              </div>
+
+            </div>
+          </div>
+
+
+          <!-- ================= PROFILE OVERLAY ================= -->
+          <div id="profileOverlay"
+              class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-40 pointer-events-none">
+          </div>
+  
+          
+          <!-- ================= ARCHIVE OVERLAY ================= -->
+          <div id="globalOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-40"></div>
+
+
+
+          <!-- OVERLAY MOBILE -->
+          <div id="overlay" class="fixed inset-0 bg-black/30 hidden z-30 lg:hidden"></div>
+
+          <!-- ================= MAIN WRAPPER ================= -->
+          <div class="lg:ml-64 min-h-screen flex flex-col pb-10">
+
+              <!-- NAVBAR -->
+              <header class="bg-white shadow-sm sticky top-0 z-20">
+                <div class="max-w-6xl mx-auto px-6">
+                  <div class="flex justify-between items-center h-16">
+
+                      <button id="menuBtn" class="lg:hidden p-2 rounded-md hover:bg-gray-100">
+                        ☰
+                      </button>
+
+                      <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                        <img src="{{ url_for('static', filename='img/Logo_Pm.jpeg') }}"
+                            alt="Plant Medic Logo"
+                            class="w-full h-full object-cover">
+                      </div>
+                        <div>
+                          <h1 class="text-lg font-semibold">Plant Medic</h1>
+                          <p class="text-xs text-gray-500">Plant disease detection</p>
+                        </div>
+                      </div>
+
+                    <div class="flex items-center gap-3">
+                      <!-- AVATAR -->
+                      <div
+                        id="welcomeAvatar"
+                        class="w-10 h-10 bg-primary text-white rounded-full
+                              flex items-center justify-center font-bold overflow-hidden">
+
+                        <!-- INITIAL -->
+                        <span id="welcomeInitial">
+                          {{ current_user.username[0]|upper }}
+                        </span>
+
+                        <!-- PHOTO -->
+                        <img
+                          id="welcomeAvatarImg"
+                          class="hidden w-full h-full object-cover"
+                          alt="Avatar">
+                      </div>
+
+                      <!-- TEXT -->
+                      <div class="text-sm leading-tight">
+                        <span class="text-gray-500">Welcome,</span><br>
+                        <span id="welcomeUsername" class="font-semibold">
+                          Hello {{ current_user.username }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </header>
+
+              <!-- 🔥 MAIN CONTENT - Semua dalam satu container center -->
+              <main id="mainContent" class="flex-1 w-full">
+                <div class="w-full max-w-5xl mx-auto px-4 sm:px-6">
+
+                    <!-- DROP ZONE -->
+                    <div id="dropZone" class="dropzone idle relative w-full max-w-2xl mx-auto h-[360px] rounded-2xl flex items-center justify-center cursor-pointer transition-all mt-16">
+
+                      <!-- CLOSE BUTTON (hidden by default) -->
+                      <button id="closePreview" type="button" 
+                              class="absolute top-2 right-2 z-50 text-gray-400 text-2xl hidden bg-gray-200 rounded-full w-9 h-9 hover:text-red-600 hover:bg-red-500 leading-none">
+                        &times;
+                      </button>
+
+                  <!-- FILE INPUT -->
+                  <input id="fileInput" type="file" name="image" accept="image/*" class="hidden"/>
+
+                    <!-- PLACEHOLDER TEXT -->
+                    <div id="placeholderContent" class="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center pointer-events-none transition-opacity">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-4-4V8a4 4 0 014-4h10a4 4 0 014 4v4a4 4 0 01-4 4M7 16l5-5 5 5"/>
+                      </svg>
+
+                      <div>
+                        <p class="text-sm text-gray-600 font-medium">
+                          Click or drag the image here
+                        </p>
+                        <p class="text-xs text-gray-400 mt-1">
+                          PNG, JPG, JPEG up to 10MB
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- PREVIEW CONTAINER -->
+                    <div id="previewCard" class="hidden absolute inset-0 flex items-center justify-center p-4 bg-white">
+                      <img id="previewImg" 
+                          class="max-h-full max-w-full object-contain rounded-xl"
+                          alt="Preview">
+                    </div>
+                  </div>
+
+                  <!-- AI RESULT AREA -->
+                  <div class="w-full mt-6 pb-32">
+                    
+                    <!-- Divider -->
+                    <div id="aiDivider" class="hidden w-full my-8 border-t border-slate-300"></div>
+
+                    <!-- AI Result Box -->
+                    <div id="aiResult" class="hidden w-full bg-white border border-slate-200 rounded-2xl px-6 py-6 sm:px-8 sm:py-8 text-base leading-relaxed text-slate-800 whitespace-pre-line shadow-sm">
+                      <!-- Content akan diisi oleh JavaScript -->
+                    </div>
+                  </div>
+                </div>
+              </main>
+
+              <!-- SEND BAR -->
+              <div id="sendBar" class="fixed bottom-0 inset-x-0 lg:left-64 z-30 bg-white/80 backdrop-blur border-t border-slate-200 h-[72px]">
+
+                <!-- Reset Button -->
+                <div class="absolute bottom-20 left-3 flex sm:left-4 sm:top-1/2 sm:-translate-y-1/2 sm:bottom-auto">
+                  <button id="resetChatBtn" type="button" class="h-[44px] px-3 sm:h-[51.5px] sm:px-4 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center shadow" title="Reset Chat">
+                    <span class="material-symbols-outlined text-[22px] sm:text-[24px]">refresh</span>
+                  </button>
+                </div>
+
+                <!-- CENTER AREA -->
+                <div class="flex items-center justify-center h-full gap-3">
+
+                  <!-- Stop Button -->
+                  <button id="stopTypingBtn" type="button" class="fixed bottom-20 left-1/2 -translate-x-1/2 sm:absolute sm:bottom-auto sm:left-1/2 sm:-translate-x-[220px] hidden opacity-0 scale-95 transition-all duration-200 h-[51.5px] px-4 rounded-xl bg-red-500 text-white hover:bg-red-600 flex items-center justify-center">
+                    ⛔
+                  </button>
+
+                  <!-- 🔥 UPLOAD FORM (HAPUS sendFileInput, pakai fileInput yang sama) -->
+                  <form id="uploadForm">
+                    <button
+                      id="sendBtn"
+                      type="submit"
+                      disabled
+                      class="relative z-50 w-80 py-3 rounded-xl bg-emerald-600 text-white disabled:bg-emerald-300 disabled:cursor-not-allowed hover:enabled:bg-emerald-700 transition flex items-center justify-center">
+                      <span id="sendBtnText">Detect Plant</span>
+                      <span class="material-symbols-outlined text-xl ml-2">arrow_upward</span>
+                    </button>
+                  </form>
+                </div>
+              </div>
+          </div>
+
+
+    <!-- 1️⃣ SESSION (STATE GLOBAL) -->
+    <script src="{{ url_for('static', filename='js/session.js') }}"></script>
+
+        <!-- 3️⃣ DASHBOARD LOGIC -->
+    <script src="{{ url_for('static', filename='js/dashboard_user.js') }}"></script>
+
+
+{% endblock %}
+
+
+
+
+

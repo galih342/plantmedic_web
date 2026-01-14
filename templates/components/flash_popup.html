@@ -1,0 +1,82 @@
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for category, message in messages %}
+
+    {# ================= REGISTER SUCCESS POPUP ================= #}
+    {% if category == 'register_success' %}
+    <div id="registerPopup"
+         class="fixed inset-0 z-50 flex items-center justify-center
+                bg-black/40 backdrop-blur-sm">
+
+      <div class="bg-white w-full max-w-sm mx-4
+                  rounded-2xl shadow-xl p-6
+                  text-center animate-scale-in">
+
+        <div class="flex justify-center mb-3">
+          <div class="w-14 h-14 rounded-full bg-emerald-100
+                      flex items-center justify-center text-2xl">
+            ✅
+          </div>
+        </div>
+
+        <h3 class="text-lg font-semibold">
+          {{ message }}
+        </h3>
+
+        <p class="text-sm text-gray-500 mt-1">
+          Silakan login menggunakan akun Anda
+        </p>
+
+        <button onclick="document.getElementById('registerPopup').remove()"
+                class="mt-5 w-full py-2.5 rounded-xl
+                       bg-emerald-600 text-white
+                       hover:bg-emerald-700 transition">
+          OK
+        </button>
+      </div>
+    </div>
+    {% endif %}
+
+    {# ================= NORMAL FLASH (LOGIN / ERROR / DLL) ================= #}
+    {% if category != 'register_success' %}
+    <div id="flash-{{ loop.index }}"
+       class="fixed top-5 right-5 z-[9999]
+              w-full max-w-sm bg-white shadow-xl rounded-xl
+              border-l-4
+              {% if category == 'login_success' %}border-green-500
+              {% else %}border-emerald-500{% endif %}
+              animate-slide-in">
+
+    <div class="p-4 flex gap-3 items-center pointer-events-auto">
+
+      <!-- ✅ ICON ANIMASI -->
+      <div class="flex-shrink-0">
+        <svg class="w-8 h-8 text-green-500 animate-check"
+             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-width="3" stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+
+      <!-- TEXT -->
+      <div class="flex-1">
+        <p class="font-semibold text-gray-800">
+          {{ message }}
+        </p>
+      </div>
+
+      <!-- CLOSE -->
+      <button onclick="closePopup('flash-{{ loop.index }}')"
+        class="relative z-10 pointer-events-auto
+               text-gray-400 hover:text-gray-600">
+        ✕
+      </button>
+
+
+    </div>
+  </div>
+
+    {% endif %}
+
+  {% endfor %}
+{% endwith %}

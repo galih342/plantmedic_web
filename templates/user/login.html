@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <meta charset="utf-8">
+  <title>Login — Plant Medic</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#16a34a',
+            accent: '#047857'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { font-family: Inter, sans-serif; }
+  </style>
+</head>
+
+<body class="bg-gray-100 min-h-[100svh]">
+
+  <div class="min-h-[100svh] flex items-center justify-center">
+
+    <div class="w-full flex justify-center px-4 py-6">
+
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% for category, message in messages %}
+
+{% if category == 'register_success' %}
+<!-- REGISTER SUCCESS POPUP -->
+<div id="registerPopup"
+     class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+
+  <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl p-6 text-center animate-scale-in">
+
+    <div class="flex justify-center mb-3">
+      <div class="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center text-2xl text-emerald-600">
+        ✓
+      </div>
+    </div>
+
+    <h3 class="text-lg font-semibold">
+      {{ message }}
+    </h3>
+
+    <p class="text-sm text-gray-500 mt-1">
+      Silakan login menggunakan akun Anda
+    </p>
+
+    <button onclick="document.getElementById('registerPopup').remove()"
+            class="mt-5 w-full py-2.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition">
+      OK
+    </button>
+  </div>
+</div>
+
+{% endif %}
+
+{% endfor %}
+{% endwith %}
+
+<!-- LOGIN CARD -->
+<div class="w-full max-w-[360px] bg-white shadow-lg rounded-2xl p-6 sm:p-8 my-4 relative">
+
+    <!-- BACK BUTTON -->
+<a href="{{ url_for('index') }}" title="Back to Landingpage"
+   class="absolute top-2 right-2 w-9 h-9 flex items-center justify-center
+          rounded-full bg-gray-100 hover:bg-primary hover:text-white
+          transition text-gray-600">
+  <span class="material-symbols-outlined text-xl">
+    arrow_back
+  </span>
+</a>
+
+
+  <!-- HEADER -->
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-lg font-bold shrink-0">
+      PM
+    </div>
+
+    <div>
+      <h2 class="text-xl font-semibold">Login</h2>
+      <p class="text-sm text-gray-500">Plant Medic Access</p>
+    </div>
+  </div>
+
+  <!-- ERROR -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% for category, message in messages %}
+    {% if category == 'error' %}
+      <div class="mb-4 text-sm text-white px-4 py-2 rounded-lg bg-red-500">
+        {{ message }}
+      </div>
+    {% endif %}
+  {% endfor %}
+  {% endwith %}
+
+  <!-- FORM -->
+  <form method="POST" class="space-y-4">
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Email</label>
+      <input type="email" name="email" required
+     class="w-full px-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Password</label>
+      <input type="password" name="password" required
+        class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+    </div>
+
+    <button type="submit"
+    class="w-full bg-primary text-white py-2.5 sm:py-3 rounded-lg hover:bg-accent transition">
+      Login
+    </button>
+
+  </form>
+ 
+  <!-- FOOTER LINK -->
+  <div class="mt-5 text-center text-sm">
+    <a href="{{ url_for('register') }}" class="text-primary font-medium hover:underline">
+      Don't have an account? Register here
+    </a>
+  </div>
+
+  <p class="mt-6 text-center text-xs text-gray-500">
+    © Plant Medic
+  </p>
+
+</div>
+</div>
+
+</div>
+</body>
+
+
+</html>

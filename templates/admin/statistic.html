@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Statistik</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Statistik</h1>
+    <canvas id="chart"></canvas>
+    <script>
+async function loadStats(){
+    const res = await fetch('/admin/stats');
+    const j = await res.json();
+    new Chart(document.getElementById('chart'),{
+        type:'bar', data:{labels:j.labels,datasets:[{label:'Count', data:j.data}]} })
+}
+loadStats();
+    </script>
+</body>
+</html>

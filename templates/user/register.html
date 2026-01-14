@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+
+  <title>User Registration — Plant Medic</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#16a34a',
+            accent: '#047857'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { font-family: Inter, sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex justify-center items-start sm:items-center px-4 pt-10 sm:pt-0">
+
+<div class="w-full max-w-none sm:max-w-lg md:max-w-md bg-white shadow-lg rounded-2xl p-6 sm:p-8 md:p-8 relative">
+
+  <!-- BACK BUTTON -->
+<a href="{{ url_for('index') }}" title="Back to Landingpage"
+   class="absolute top-2 right-2 w-9 h-9 flex items-center justify-center
+          rounded-full bg-gray-100 hover:bg-primary hover:text-white
+          transition text-gray-600" >
+  <span class="material-symbols-outlined text-xl">
+    arrow_back
+  </span>
+</a>
+
+
+  <!-- HEADER -->
+  <div class="flex items-center gap-4 mb-6">
+    <div
+      class="w-11 h-11 sm:w-12 sm:h-12 bg-primary text-white rounded-full flex items-center justify-center text-base sm:text-lg font-bold shrink-0">
+      PM
+    </div>
+
+    <div>
+      <h2 class="text-xl sm:text-2xl font-semibold">
+        Registration
+      </h2>
+      <p class="text-sm text-gray-500">
+        Create your Plant Medic Account
+      </p>
+    </div>
+  </div>
+
+  <!-- FLASH MESSAGE -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, msg in messages %}
+      <div
+        class="mb-4 text-sm text-white px-4 py-2 rounded-lg {% if category == 'error' %} bg-red-500 {% else %} bg-primary {% endif %}">
+        {{ msg }}
+      </div>
+    {% endfor %}
+  {% endif %}
+  {% endwith %}
+
+  <!-- FORM -->
+  <form method="POST">
+
+    <div class="mb-3">
+      <label class="block text-sm font-medium mb-1">Username</label>
+      <input
+        type="text"
+        name="username"
+        required
+        class="w-full px-4 py-2.5 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+    </div>
+
+    <div class="mb-3">
+      <label class="block text-sm font-medium mb-1">Email</label>
+      <input
+        type="email"
+        name="email"
+        required
+        class="w-full px-4 py-2.5 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+    </div>
+
+    <div class="mb-3">
+      <label class="block text-sm font-medium mb-1">Password</label>
+      <input
+        type="password"
+        name="password"
+        required
+        class="w-full px-4 py-2.5 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+    </div>
+
+    <div class="mb-3">
+      <label class="block text-sm font-medium mb-1">Confirm Password</label>
+      <input
+        type="password"
+        name="confirm_password"
+        required
+        class="w-full px-4 py-2.5 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+    </div>
+
+    <button
+      type="submit"
+      class="w-full bg-primary text-white py-3.5 rounded-lg hover:bg-accent transition">
+      Register
+    </button>
+
+  </form>
+
+  <!-- FOOTER LINK -->
+  <div class="mt-6 text-center text-sm">
+    <a
+      href="{{ url_for('user_login') }}"
+      class="text-primary font-medium hover:underline"
+    >
+      Sudah punya akun? Login di sini
+    </a>
+  </div>
+
+  <p class="mt-6 text-center text-xs text-gray-500">
+    © Plant Medic — User Registration
+  </p>
+
+</div>
+
+  
+</body>

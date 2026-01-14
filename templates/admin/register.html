@@ -1,0 +1,21 @@
+@app.route('/admin/register', methods=['GET', 'POST'])
+def admin_register():
+    if request.method == 'POST':
+        email = request.form.get("email")
+        password = request.form.get("password")
+
+        exist = Admin.query.filter_by(email=email).first()
+        if exist:
+            flash("Email admin sudah dipakai!", "error")
+            return redirect('/admin/register')
+
+        hashed = generate_password_hash(password)
+        new_admin = Admin(email=email, password=hashed)
+
+        db.session.add(new_admin)
+        db.session.commit()
+
+        flash("Admin berhasil dibuat!", "success")
+        return redirect('/admin/login')
+
+    return render_template('admin/register.html')
