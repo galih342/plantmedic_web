@@ -336,7 +336,9 @@
               <!-- PROFILE BUTTON -->
               <button id="profileBtn" class="w-full flex items-center gap-3 px-4 py-3 border-b hover:bg-gray-50 transition text-left">
 
-              <img id="accountMenuAvatar" src="{{ current_user.photo_url or '/static/img/default-avatar.png' }}" class="w-10 h-10 rounded-full border object-cover">
+              <img id="accountMenuAvatar" 
+                   src="{{ url_for('static', filename='uploads/avatar/' + current_user.photo_url) if current_user.photo_url else url_for('static', filename='img/default-avatar.png') }}" 
+                   class="w-10 h-10 rounded-full border object-cover">
 
             <div class="min-w-0">
               <p id="accountMenuUsername" class="font-semibold truncate"> {{ current_user.username }}</p>
