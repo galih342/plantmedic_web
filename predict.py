@@ -4,15 +4,62 @@ import cv2
 import traceback
 import numpy as np
 import tensorflow as tf
+import requests  # ✅ TAMBAHAN: Buat download manual
 from PIL import Image, ImageEnhance, ImageFilter
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-MODEL_PATH = os.path.join(BASE_DIR, "models", "plantmedic_model_transfer.h5")
+# Sesuaikan nama file model kamu di sini
+MODEL_FILENAME = "plantmedic_model_transfer.h5" 
+MODEL_PATH = os.path.join(BASE_DIR, "models", MODEL_FILENAME)
+
+# ✅ TAMBAHAN: Link RAW GitHub (Pastikan branch main dan path benar)
+MODEL_URL = f"https://github.com/galih342/plantmedic_web/raw/main/models/{MODEL_FILENAME}"
+
 LABEL_PATH = os.path.join(BASE_DIR, "labels.json")
 DISEASE_DATA_PATH = os.path.join(BASE_DIR, "disease_data.json")
+
+# ================= AUTO-FIX LFS MODEL =================
+def download_model_if_needed():
+    """Mengecek apakah file model rusak/pointer LFS, jika ya, download ulang."""
+    need_download = False
+    
+    if not os.path.exists(MODEL_PATH):
+        print("⚠️ Model file not found locally.")
+        need_download = True
+    else:
+        # Cek ukuran file. File LFS pointer biasanya < 2KB (text file).
+        # Model asli harusnya > 1MB.
+        file_size = os.path.getsize(MODEL_PATH)
+        if file_size < 1000000:  # Jika kurang dari 1MB (Pointer detected)
+            print(f"⚠️ File size is only {file_size} bytes. This is likely an LFS pointer. Re-downloading real model...")
+            try:
+                os.remove(MODEL_PATH) # Hapus file pointer palsu
+            except:
+                pass
+            need_download = True
+        else:
+            print("✅ Model file seems valid (Size correct).")
+
+    if need_download:
+        print(f"⬇️ Downloading model from {MODEL_URL}...")
+        try:
+            response = requests.get(MODEL_URL, stream=True)
+            if response.status_code == 200:
+                # Pastikan folder models ada
+                os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
+                
+                with open(MODEL_PATH, 'wb') as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        f.write(chunk)
+                print("✅ Download complete!")
+            else:
+                raise Exception(f"Failed to download model. Status code: {response.status_code}")
+        except Exception as e:
+            print(f"❌ Error downloading model: {e}")
+            raise e
 
 # ================= LOAD MODEL =================
 model = None
@@ -20,9 +67,12 @@ model = None
 def load_model_once():
     global model
     if model is None:
+        # ✅ FIX: Jalankan pengecekan/download sebelum load
+        download_model_if_needed()
+        
         print("🔄 Loading model...")
         model = tf.keras.models.load_model(MODEL_PATH)
-        print("✅ Model loaded")
+        print("✅ Model loaded successfully")
     return model
 
 # ================= LOAD LABEL =================
@@ -46,7 +96,7 @@ def enhance_image(img):
     return img
 
 
-def assess_image_quality(image_path):  # ✅ Hapus "_fixed"
+def assess_image_quality(image_path):
     try:
         # Method 1: Try cv2.imread
         img = cv2.imread(image_path)
@@ -102,7 +152,7 @@ def preprocess_image(image_path, target_size=(224, 224)):
         img = Image.open(image_path)
 
         # 🔥 BATASI RESOLUSI MAKSIMAL
-        img.thumbnail((1024, 1024))  # WAJIB
+        img.thumbnail((1024, 1024))
 
         img = img.convert("RGB")
         img = img.resize(target_size)
@@ -144,7 +194,7 @@ def predict_image(image_path):
                 "confidence": round(conf, 2)
             })
 
-        # Setelah baris: top3 = [{...}]
+        # Debug logs
         print("=" * 50)
         print("🔍 DEBUG PREDICTIONS:")
         for i, pred in enumerate(top3):
@@ -164,13 +214,13 @@ def predict_image(image_path):
             
             return {
                 "status": "ragu",
-                "label": best_label,  # ✅ Ubah dari "Tidak dikenali" ke label asli
+                "label": best_label, 
                 "confidence": best_conf,
                 "message": f"Kemungkinan adalah {best_label}, namun tingkat keyakinan masih rendah ({best_conf:.1f}%). Coba foto dengan pencahayaan lebih baik.",
-                "description": overview.get("short", "Informasi belum tersedia"),  # ✅ TAMBAHKAN
-                "overview": overview,  # ✅ TAMBAHKAN
-                "treatment": detail.get("treatment", []),  # ✅ TAMBAHKAN
-                "prevention": detail.get("prevention", []),  # ✅ TAMBAHKAN
+                "description": overview.get("short", "Informasi belum tersedia"), 
+                "overview": overview, 
+                "treatment": detail.get("treatment", []), 
+                "prevention": detail.get("prevention", []), 
                 "predictions": top3,
                 "quality_info": quality_info
             }
@@ -186,7 +236,7 @@ def predict_image(image_path):
                 "confidence": best_conf,
                 "message": f"Kemungkinan besar adalah {best_label}, namun tingkat keyakinan masih rendah.",
                 "description": overview.get("short", ""),
-                "predictions": top3,  # ✅ PASTIKAN INI ADA
+                "predictions": top3,
                 "treatment": detail.get("treatment", []) if detail else [],
                 "prevention": detail.get("prevention", []) if detail else [],
                 "quality_info": quality_info
@@ -226,4 +276,3 @@ def predict_image(image_path):
     except Exception as e:
         traceback.print_exc()
         raise Exception(f"Prediction failed: {str(e)}")
-    
